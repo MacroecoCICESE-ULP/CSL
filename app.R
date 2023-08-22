@@ -6,7 +6,7 @@ pred_all_rook<- read.csv("C:/Users/Macroeco/Documents/My_R/ULP/pred_all_rook_CSL
 sum_count_predict<- read.csv("C:/Users/Macroeco/Documents/My_R/ULP/pred_total_pop_CSL.csv")
 
 datos_abundancia <- data.frame(
-  año = pred_all_rook$pred_years,
+  aÃ±o = pred_all_rook$pred_years,
   colonia = pred_all_rook$rook_labels_facet,
   abundancia = pred_all_rook$med_w_at_sea,
   abundancia_min = pred_all_rook$lwr_w_at_sea,
@@ -18,6 +18,9 @@ datos_abundancia <- data.frame(
   lat = pred_all_rook$lat
   
 )
+
+colonia<- unique(datos_abundancia$colonia)
+aÃ±o<- unique(datos_abundancia$aÃ±o)
 
 uso<- levels(as.factor(all_colonies_df$type_colony))
 paleta_uso<- colorFactor (c("#F39C6B","#7209b7"), levels = unique(all_colonies_df$type_colony))
@@ -50,9 +53,9 @@ ui <- fluidPage(
   ),
   fluidRow(height= 100,
     column(6, h4("Colonias del Golfo de California"),
-           selectInput("yearInput", "Año:",
-                       choices =  unique(datos_abundancia$año),
-                       selected = unique(datos_abundancia$año)[2])
+           selectInput("yearInput", "AÃ±o:",
+                       choices =  unique(datos_abundancia$aÃ±o),
+                       selected = unique(datos_abundancia$aÃ±o)[2])
           ),
     column(6,
            h4("Abundancia por Colonia"),
@@ -69,7 +72,7 @@ ui <- fluidPage(
            
     column(width = 6,
            plotOutput("plot", height = 250),
-           h4("Población Total en el Golfo de California"),
+           h4("PoblaciÃ³n Total en el Golfo de California"),
            plotOutput("populationPlot", height = 250)
                     
                   ))
@@ -81,7 +84,7 @@ server <- function(input, output) {
   # Mapa
   output$map <- renderLeaflet({
     datos_filtrados <- datos_abundancia %>%
-      filter(año == input$yearInput)
+      filter(aÃ±o == input$yearInput)
     
     
     leaflet() %>%
@@ -114,31 +117,31 @@ server <- function(input, output) {
   # Crear mapa
   
   
-  # Crear gráfico de abundancia por colonia
+  # Crear grÃ¡fico de abundancia por colonia
   output$plot <- renderPlot({
     datos_filtrados <- datos_abundancia %>%
       filter(colonia == input$colonyInput)
     
     selected_year <- as.numeric(input$yearInput)
     
-    ggplot(datos_filtrados, aes(x = año, y = abundancia)) +
+    ggplot(datos_filtrados, aes(x = aÃ±o, y = abundancia)) +
       geom_ribbon(data = datos_filtrados,
-                  aes(x = año,
+                  aes(x = aÃ±o,
                       ymin = abundancia_min,
                       ymax = abundancia_max),
                   fill = "#F39C6B",
                   color = NA,
                   alpha = 0.6) +
       geom_path(data = datos_filtrados,
-                aes(x = año,
+                aes(x = aÃ±o,
                     y = abundancia),
                 # group = rook_labels),
                 color = "#973C21",
                 size = 0.6) +
       
       
-      geom_errorbar(data = datos_filtrados[datos_filtrados$año == selected_year,],
-                    aes(x=año,
+      geom_errorbar(data = datos_filtrados[datos_filtrados$aÃ±o == selected_year,],
+                    aes(x=aÃ±o,
                         ymin= abundancia_min,
                         ymax= abundancia_max),
                     width= 0.2,
@@ -147,8 +150,8 @@ server <- function(input, output) {
                     alpha= 1
                     
       )+
-      geom_point(data = datos_filtrados[datos_filtrados$año == selected_year,],
-                 aes(x=año,
+      geom_point(data = datos_filtrados[datos_filtrados$aÃ±o == selected_year,],
+                 aes(x=aÃ±o,
                      y= abundancia),
                  shape=21,
                  size= 5,
@@ -158,7 +161,7 @@ server <- function(input, output) {
       
       
       
-      geom_text(data = datos_filtrados[datos_filtrados$año == selected_year,],
+      geom_text(data = datos_filtrados[datos_filtrados$aÃ±o == selected_year,],
                 aes(label= paste(round(abundancia,digits = 0),"individuos"),
                     x = position_label_x,
                     y = position_label_y
@@ -170,7 +173,7 @@ server <- function(input, output) {
                 size= 8,
                 color= "black"
       )+
-      geom_text(data = datos_filtrados[datos_filtrados$año == selected_year,],
+      geom_text(data = datos_filtrados[datos_filtrados$aÃ±o == selected_year,],
                 aes(x = position_label_x ,
                     y = position_label_sub ,
                     # just = c("left", "bottom"),
@@ -218,9 +221,9 @@ server <- function(input, output) {
   })
   
   
-  # Crear gráfico de población total
+  # Crear grÃ¡fico de poblaciÃ³n total
   output$populationPlot <- renderPlot({
-    # Aquí podrías cargar los datos para el gráfico de población total
+    # AquÃ­ podrÃ­as cargar los datos para el grÃ¡fico de poblaciÃ³n total
     
     selected_year <- as.numeric(input$yearInput)
     
@@ -299,11 +302,11 @@ server <- function(input, output) {
         strip.text.x = element_text(margin = margin(0.1,0.1,0.1,0.1, "cm"))  # top, right, bottom, left
       ) +
       
-      labs(x= "", y= "Tamaño poblacional",title = "")
+      labs(x= "", y= "TamaÃ±o poblacional",title = "")
   })
 }
 
 
-# Ejecutar la aplicación
+# Ejecutar la aplicaciÃ³n
 shinyApp(ui = ui, server = server)
 
